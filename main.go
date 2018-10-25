@@ -21,7 +21,6 @@ func main() {
 		fmt.Printf(err)
 		return
 	}
-
 	howdoi.Howdoi(res)
 }
 

@@ -42,8 +42,8 @@ func init() {
 	}
 
 	searchUrls = map[string]string{
-		"bing":   scheme + "www.bing.com/search?q=%s%%20site:%s",
-		"google": scheme + "www.google.com/search?q=%s%%20site:%s",
+		"bing":   scheme + "www.bing.com/search?q=%s site:%s",
+		"google": scheme + "www.google.com/search?q=%s site:%s",
 	}
 	starHeader = "\u2605"
 	answerHeader = "{2}  Answer from {0} {2}\n\n{1}"
@@ -56,15 +56,21 @@ func Howdoi(res Cli) string {
 
 	result, err := res.getInstructions()
 
-	var ok = "hello"
+	if err != nil {
+
+	}
+	var ok = "hello" + result
 	// userAgents[0] + searchUrls["bing"]
 	return ok
 }
 
 func (clis Cli) getInstructions() (string, error) {
 	var result string
-
+	var err error
 	links := clis.getLinks() // HERE
+	for _, k := range links {
+		fmt.Println(k)
+	}
 
 	return result, err
 }
@@ -73,9 +79,11 @@ func (clis Cli) getLinks() []string {
 
 	searchEngine := getEnv("HOWDOI_SEARCH_ENGINE", "bing")
 	searchURL := getSearchURL(searchEngine)
-	result := getResult(fmt.Sprintf(url.QueryEscape(clis.Query[0]), uRL), searchEngine)
-
-	return result
+	u, _ := url.Parse(fmt.Sprintf(searchURL, clis.Query[0], uRL))
+	q := u.Query()
+	u.RawQuery = q.Encode() //urlencode
+	doc, engine := getResult(u.String(), searchEngine)
+	return extractLinks(doc, engine)
 }
 
 func getSearchURL(s string) string {
@@ -108,7 +116,7 @@ func extractLinks(doc *goquery.Document, engine string) []string {
 
 	return links
 }
-func getResult(url string, engine string) []string {
+func getResult(url string, engine string) (*goquery.Document, string) {
 
 	res, err := http.Get(url)
 	if err != nil {
@@ -123,5 +131,5 @@ func getResult(url string, engine string) []string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return extractLinks(doc, engine)
+	return doc, engine
 }
