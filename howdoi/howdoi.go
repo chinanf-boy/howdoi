@@ -51,17 +51,18 @@ func init() {
 }
 
 // Howdoi string
-func Howdoi(res Cli) string {
+func Howdoi(res Cli) (string, error) {
+
 	res.Query = []string{strings.Replace(strings.Join(res.Query[:], " "), "?", "", -1)}
 
 	result, err := res.getInstructions()
 
 	if err != nil {
-
+		return "", err
 	}
-	var ok = "hello" + result
+	fmt.Printf("%v", result)
 	// userAgents[0] + searchUrls["bing"]
-	return ok
+	return result, nil
 }
 
 func (clis Cli) getInstructions() (string, error) {

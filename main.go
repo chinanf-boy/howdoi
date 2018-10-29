@@ -4,42 +4,30 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/akamensky/argparse"
 	howdoi "github.com/chinanf-boy/howdoi/howdoi"
 )
 
 func main() {
 	const _version = "0.0.1"
-	res, err := argsPar()
+
+	// use Lib for howdoi, ArgsPar get the howdoi.Cli struct
+	res, err := howdoi.ArgsPar()
 
 	if res.Version {
 		fmt.Printf("Version:%s", _version)
 		return
 	}
 
-	if err != "" {
-		fmt.Printf(err)
-		return
-	}
-	howdoi.Howdoi(res)
-}
-
-func argsPar() (howdoi.Cli, string) {
-	parser := argparse.NewParser("howdoi", "cli to Ask the question")
-
-	color := parser.Flag("c", "color", &argparse.Options{Required: false, Help: "colorful Output"})
-	version := parser.Flag("v", "version", &argparse.Options{Required: false, Help: "version"})
-	num := parser.Int("n", "num", &argparse.Options{Required: false, Help: "how many answer"})
-	query := parser.List("q", "query", &argparse.Options{Required: true, Help: "query what"})
-
-	// Parse input
-	err := parser.Parse(os.Args)
-	var errStr string
 	if err != nil {
-		errStr = parser.Usage(err)
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
 	}
 
-	res := howdoi.Cli{Color: *color, Num: int8(*num), Query: *query, Version: *version}
+	// pass howdoi.Cli
+	_, err = howdoi.Howdoi(res)
 
-	return res, errStr
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
 }
