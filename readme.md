@@ -35,7 +35,7 @@ ENV | Desc | Default
 ---------|----------|---------
 | **HOWDOI_DISABLE_SSL** | change `https://` => `http://` | `nil`
 | **HOWDOI_URL** | search engine with the ask website  | `stackoverflow.com`
-| **HOWDOI_SEARCH_ENGINE** | search engine{bing|google} | `bing`
+| **HOWDOI_SEARCH_ENGINE** | search engine{bing\|google} | `bing`
 
 ### Cli
 
@@ -56,7 +56,7 @@ Arguments:
 
 ### Why rewrite
 
-1. proxy, some issue with `socks`
+1. proxy,[some issue](https://github.com/chinanf-boy/howdoi/issues/1) with `socks`
 2. fast
 
 
