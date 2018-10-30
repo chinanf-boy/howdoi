@@ -37,21 +37,21 @@ func init() {
 		scheme = "https://"
 		verifySslCertificate = true
 	}
-
 	uRL = getEnv("HOWDOI_URL", "stackoverflow.com")
-
-	userAgents = []string{
-		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:11.0) Gecko/20100101 Firefox/11.0",
-	}
+	searchEngine = getEnv("HOWDOI_SEARCH_ENGINE", "bing")
 
 	searchUrls = map[string]string{
 		"bing":   scheme + "www.bing.com/search?q=%s site:%s",
 		"google": scheme + "www.google.com/search?q=%s site:%s",
 	}
+
+	// some value ,  waiting to use
+	userAgents = []string{
+		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:11.0) Gecko/20100101 Firefox/11.0",
+	}
 	starHeader = "\u2605"
-	answerHeader = "{2}  Answer from {0} {2}\n\n{1}"
+	answerHeader = "%s  Answer from %s \n\n %s"
 	noAnswerMsg = "< no answer given >"
-	searchEngine = getEnv("HOWDOI_SEARCH_ENGINE", "google")
 }
 
 // Howdoi string
@@ -64,8 +64,6 @@ func Howdoi(res Cli) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("%v", result)
-	// userAgents[0] + searchUrls["bing"]
 	return result, nil
 }
 
@@ -80,30 +78,59 @@ func (clis Cli) getInstructions() ([]string, error) {
 		}
 	}
 	if len(questionLinks) > 0 {
-		for _, k := range questionLinks {
-			fmt.Println(k)
-		}
-		n := clis.Num
-		for n > 0 {
-			// HERE
-			n--
-		}
-	} else {
-		err = errors.New("no questions link")
-	}
+		var n int
+		answers := make([]string, 0)
 
-	return []string{}, err
+		if clis.Num > len(questionLinks) {
+			n = len(questionLinks)
+		} else {
+			n = clis.Num
+		}
+		for i := 0; i < n; i++ {
+			var res string
+			answer := clis.getAnswer(questionLinks[i])
+			if len(answer) == 0 {
+				res = noAnswerMsg
+			} else if n > 1 {
+				comeFrom := fmt.Sprintf(answerHeader,
+					starHeader,
+					questionLinks[i],
+					strings.Join(answer, "\n"))
+
+				res = comeFrom
+
+			} else {
+				res = strings.Join(answer, "\n")
+			}
+			answers = append(answers, res)
+		}
+
+		return answers, nil
+
+	}
+	err = errors.New(aurora.Red("no questions link").String())
+
+	return nil, err
 }
 
-func cutURL(links []string) []string {
-	ls := make([]string, 0)
+func (clis Cli) getAnswer(u string) []string {
+	doc := getResult(u)
+	return extractAnswer(doc)
+}
 
-	for _, v := range links {
-		if isRegexp(v, `^/url\?q=`) {
-			ls = append(ls, v[7:])
-		}
+func extractAnswer(doc *goquery.Document) []string {
+	links := make([]string, 0)
+	instructions := doc.Find(".answer").First().Find("pre")
+	if instructions.Size() > 0 {
+		instructions.Each(func(i int, s *goquery.Selection) {
+			str := s.Text() // TODO: colored code with term
+			links = append(links, str)
+		})
+	} else {
+		links = append(links, doc.Find(".post-text").Eq(1).Text())
 	}
-	return ls
+
+	return links
 }
 
 func (clis Cli) getQuestions(links []string, f func(string) bool) []string {
@@ -116,12 +143,6 @@ func (clis Cli) getQuestions(links []string, f func(string) bool) []string {
 	return vsf
 }
 
-func isQuestion(s string) bool {
-	m := isRegexp(s, `questions/\d+/`)
-
-	return m
-}
-
 func (clis Cli) getLinks() []string {
 
 	searchURL := getSearchURL(searchEngine)
@@ -129,45 +150,11 @@ func (clis Cli) getLinks() []string {
 
 	q := u.Query()
 	u.RawQuery = q.Encode() //urlencode
-	doc, err := getResult(u.String())
-
-	if err != nil {
-
-	}
+	doc := getResult(u.String())
 	return extractLinks(doc, searchEngine)
 }
 
-func getSearchURL(s string) string {
-	return getMapDef(searchUrls, s, searchUrls["bing"])
-}
-
-func extractLinks(doc *goquery.Document, engine string) []string {
-	var links []string
-	if engine == "bing" {
-		doc.Find(".b_algo h2 a").Each(func(i int, s *goquery.Selection) {
-			attr, exists := s.Attr("href")
-			if exists == true {
-				links = append(links, attr)
-			}
-		})
-	} else {
-		// doc.Find(".l").Each(func(i int, s *goquery.Selection) {
-		// 	attr, exists := s.Attr("href")
-		// 	if exists == true {
-		// 		links = append(links, attr)
-		// 	}
-		// })
-		doc.Find(".r a").Each(func(i int, s *goquery.Selection) {
-			attr, exists := s.Attr("href")
-			if exists == true {
-				links = append(links, attr)
-			}
-		})
-	}
-
-	return links
-}
-func getResult(u string) (*goquery.Document, error) {
+func getResult(u string) *goquery.Document {
 	var res *http.Response
 	var err error
 
@@ -187,10 +174,13 @@ func getResult(u string) (*goquery.Document, error) {
 	}
 
 	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+		log.Fatalln(aurora.Red("status code error:"), res.Request.URL, res.Status)
 	} else {
 		doc, err := goquery.NewDocumentFromReader(res.Body)
-		return doc, err
+		if err != nil {
+			log.Fatalln(aurora.Red("goquery.NewDocumentFromReader error:"), err)
+		}
+		return doc
 	}
-	return nil, err
+	return nil
 }

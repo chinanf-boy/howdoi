@@ -10,7 +10,7 @@ import (
 // Cli args struct for cli
 type Cli struct {
 	Color   bool
-	Num     int8
+	Num     int
 	Query   []string
 	Version bool
 }
@@ -19,9 +19,9 @@ type Cli struct {
 func ArgsPar() (Cli, error) {
 	parser := argparse.NewParser("howdoi", "cli to Ask the question")
 
-	color := parser.Flag("c", "color", &argparse.Options{Required: false, Help: "colorful Output"})
+	color := parser.Flag("c", "color", &argparse.Options{Required: false, Help: "colorful Output", Default: false})
 	version := parser.Flag("v", "version", &argparse.Options{Required: false, Help: "version"})
-	num := parser.Int("n", "num", &argparse.Options{Required: false, Help: "how many answer"})
+	num := parser.Int("n", "num", &argparse.Options{Required: false, Help: "how many answer", Default: 1})
 	query := parser.List("q", "query", &argparse.Options{Required: true, Help: "query what"})
 
 	// Parse input
@@ -31,7 +31,7 @@ func ArgsPar() (Cli, error) {
 		errStr = errors.New(parser.Usage(err))
 	}
 
-	res := Cli{Color: *color, Num: int8(*num), Query: *query, Version: *version}
+	res := Cli{Color: *color, Num: *num, Query: *query, Version: *version}
 
 	return res, errStr
 }
