@@ -11,7 +11,7 @@ go get -v -u github.com/chinanf-boy/howdoi
 ### TODO
 
 - [x] base Feature, Get the data
-- [x] Proxy can with [Socks5](./howdoi/client.go)
+- [x] Proxy can with [Socks5](./src/client.go#L44)
 - [x] how many answers you want
 - [ ] colorful Code text with shell env
 - [ ] cache Result ?
