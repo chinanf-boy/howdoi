@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	userAgent "github.com/EDDYCJY/fake-useragent"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/logrusorgru/aurora"
 )
@@ -45,12 +46,8 @@ func init() {
 		"google": scheme + "www.google.com/search?q=%s site:%s",
 	}
 
-	// some value ,  waiting to use
-	userAgents = []string{
-		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:11.0) Gecko/20100101 Firefox/11.0",
-	}
 	starHeader = "\u2605"
-	answerHeader = "%s  Answer from %s \n\n %s"
+	answerHeader = "%s Answer from  " + aurora.Green("%s").String() + "\n\n%s"
 	noAnswerMsg = "< no answer given >"
 }
 
@@ -89,9 +86,9 @@ func (clis Cli) getInstructions() ([]string, error) {
 		for i := 0; i < n; i++ {
 			var res string
 			answer := clis.getAnswer(questionLinks[i])
-			if len(answer) == 0 {
+			if len(answer) == 0 { // no answer
 				res = noAnswerMsg
-			} else if n > 1 {
+			} else if n > 1 { // user want more answers
 				comeFrom := fmt.Sprintf(answerHeader,
 					starHeader,
 					questionLinks[i],
@@ -99,10 +96,10 @@ func (clis Cli) getInstructions() ([]string, error) {
 
 				res = comeFrom
 
-			} else {
+			} else { // one answer
 				res = strings.Join(answer, "\n")
 			}
-			answers = append(answers, res)
+			answers = append(answers, res) // add answer result
 		}
 
 		return answers, nil
@@ -140,6 +137,7 @@ func (clis Cli) getQuestions(links []string, f func(string) bool) []string {
 			vsf = append(vsf, v)
 		}
 	}
+	vsf = UqineSlice(vsf)
 	return vsf
 }
 
@@ -160,11 +158,19 @@ func getResult(u string) *goquery.Document {
 
 	proxyIs := whichProxy()
 
+	// User-Agent random
+	req, err := http.NewRequest("GET", u, nil)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	req.Header.Set("User-Agent", userAgent.Random())
+
 	if proxyIs == SOCKS {
 		httpClient := Socks5Client()
-		res, err = httpClient.Get(u)
+		res, err = httpClient.Do(req)
 	} else {
-		res, err = http.Get(u)
+		client := &http.Client{}
+		res, err = client.Do(req)
 	}
 
 	if err != nil {

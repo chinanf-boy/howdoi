@@ -1,10 +1,12 @@
 package howdoi
 
 import (
+	"fmt"
 	"os"
 	"regexp"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/logrusorgru/aurora"
 )
 
 func getEnv(key, fallback string) string {
@@ -72,4 +74,25 @@ func extractLinks(doc *goquery.Document, engine string) []string {
 	}
 
 	return links
+}
+
+// UqineSlice remove same string with slice
+func UqineSlice(elements []string) []string {
+	encountered := map[string]bool{}
+
+	// Create a map of all unique elements.
+	for v := range elements {
+		encountered[elements[v]] = true
+	}
+
+	// Place all keys from the map into a slice.
+	result := []string{}
+	for key := range encountered {
+		result = append(result, key)
+	}
+	return result
+}
+
+func redLog(s string) {
+	fmt.Println(aurora.Red(s))
 }

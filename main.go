@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	howdoi "github.com/chinanf-boy/howdoi/howdoi"
+	howdoi "github.com/chinanf-boy/howdoi/src"
 	"github.com/logrusorgru/aurora"
 )
 

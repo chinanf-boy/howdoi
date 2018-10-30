@@ -14,9 +14,10 @@ go get -v -u github.com/chinanf-boy/howdoi
 - [x] Proxy can with [Socks5](./howdoi/client.go)
 - [x] how many answers you want
 - [ ] colorful Code text with shell env
-- [ ] cache Result
+- [ ] cache Result ?
+- [ ] test file
 
-> **Notes:** , Over Name the Python version
+> **Notes:** , cli-name Over the Python version cli
 
 ### Uasge
 
@@ -34,7 +35,7 @@ ENV | Desc | Default
 ---------|----------|---------
 | **HOWDOI_DISABLE_SSL** | change `https://` => `http://` | `nil`
 | **HOWDOI_URL** | search engine with the ask website  | `stackoverflow.com`
-| **HOWDOI_SEARCH_ENGINE** | search engine  | `google`
+| **HOWDOI_SEARCH_ENGINE** | search engine{bing|google} | `bing`
 
 ### Cli
 
