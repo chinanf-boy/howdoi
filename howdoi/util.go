@@ -1,6 +1,9 @@
 package howdoi
 
-import "os"
+import (
+	"os"
+	"regexp"
+)
 
 func getEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
@@ -14,4 +17,12 @@ func getMapDef(m map[string]string, key, fallback string) string {
 		return value
 	}
 	return fallback
+}
+
+func isRegexp(s string, reg string) bool {
+	r := regexp.MustCompile(reg)
+
+	m := r.MatchString(s)
+
+	return m
 }

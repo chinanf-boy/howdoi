@@ -1,6 +1,7 @@
 package howdoi
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/logrusorgru/aurora"
 )
 
 var (
@@ -24,6 +26,7 @@ var (
 	cacheDir             string
 	cacheFile            string
 	howdoiSession        string
+	searchEngine         string
 )
 
 func init() {
@@ -48,43 +51,90 @@ func init() {
 	starHeader = "\u2605"
 	answerHeader = "{2}  Answer from {0} {2}\n\n{1}"
 	noAnswerMsg = "< no answer given >"
+	searchEngine = getEnv("HOWDOI_SEARCH_ENGINE", "google")
 }
 
 // Howdoi string
-func Howdoi(res Cli) (string, error) {
+func Howdoi(res Cli) ([]string, error) {
 
 	res.Query = []string{strings.Replace(strings.Join(res.Query[:], " "), "?", "", -1)}
 
 	result, err := res.getInstructions()
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	fmt.Printf("%v", result)
 	// userAgents[0] + searchUrls["bing"]
 	return result, nil
 }
 
-func (clis Cli) getInstructions() (string, error) {
-	var result string
+func (clis Cli) getInstructions() ([]string, error) {
 	var err error
 	links := clis.getLinks() // HERE
-	for _, k := range links {
-		fmt.Println(k)
+	var questionLinks []string
+	if len(links) > 0 {
+		questionLinks = clis.getQuestions(links, isQuestion)
+		if searchEngine == "google" {
+			questionLinks = cutURL(questionLinks)
+		}
+	}
+	if len(questionLinks) > 0 {
+		for _, k := range questionLinks {
+			fmt.Println(k)
+		}
+		n := clis.Num
+		for n > 0 {
+			// HERE
+			n--
+		}
+	} else {
+		err = errors.New("no questions link")
 	}
 
-	return result, err
+	return []string{}, err
+}
+
+func cutURL(links []string) []string {
+	ls := make([]string, 0)
+
+	for _, v := range links {
+		if isRegexp(v, `^/url\?q=`) {
+			ls = append(ls, v[7:])
+		}
+	}
+	return ls
+}
+
+func (clis Cli) getQuestions(links []string, f func(string) bool) []string {
+	vsf := make([]string, 0)
+	for _, v := range links {
+		if f(v) {
+			vsf = append(vsf, v)
+		}
+	}
+	return vsf
+}
+
+func isQuestion(s string) bool {
+	m := isRegexp(s, `questions/\d+/`)
+
+	return m
 }
 
 func (clis Cli) getLinks() []string {
 
-	searchEngine := getEnv("HOWDOI_SEARCH_ENGINE", "bing")
 	searchURL := getSearchURL(searchEngine)
 	u, _ := url.Parse(fmt.Sprintf(searchURL, clis.Query[0], uRL))
+
 	q := u.Query()
 	u.RawQuery = q.Encode() //urlencode
-	doc, engine := getResult(u.String(), searchEngine)
-	return extractLinks(doc, engine)
+	doc, err := getResult(u.String())
+
+	if err != nil {
+
+	}
+	return extractLinks(doc, searchEngine)
 }
 
 func getSearchURL(s string) string {
@@ -101,12 +151,12 @@ func extractLinks(doc *goquery.Document, engine string) []string {
 			}
 		})
 	} else {
-		doc.Find(".l").Each(func(i int, s *goquery.Selection) {
-			attr, exists := s.Attr("href")
-			if exists == true {
-				links = append(links, attr)
-			}
-		})
+		// doc.Find(".l").Each(func(i int, s *goquery.Selection) {
+		// 	attr, exists := s.Attr("href")
+		// 	if exists == true {
+		// 		links = append(links, attr)
+		// 	}
+		// })
 		doc.Find(".r a").Each(func(i int, s *goquery.Selection) {
 			attr, exists := s.Attr("href")
 			if exists == true {
@@ -117,20 +167,30 @@ func extractLinks(doc *goquery.Document, engine string) []string {
 
 	return links
 }
-func getResult(url string, engine string) (*goquery.Document, string) {
+func getResult(u string) (*goquery.Document, error) {
+	var res *http.Response
+	var err error
 
-	res, err := http.Get(url)
-	if err != nil {
-		log.Fatal(err)
+	proxyIs := whichProxy()
+
+	if proxyIs == SOCKS {
+		httpClient := Socks5Client()
+		res, err = httpClient.Get(u)
+	} else {
+		res, err = http.Get(u)
 	}
-	defer res.Body.Close()
+
+	if err != nil {
+		log.Fatalln(aurora.Red("请求失败:"+searchEngine), err)
+	} else {
+		defer res.Body.Close()
+	}
+
 	if res.StatusCode != 200 {
 		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+	} else {
+		doc, err := goquery.NewDocumentFromReader(res.Body)
+		return doc, err
 	}
-
-	doc, err := goquery.NewDocumentFromReader(res.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return doc, engine
+	return nil, err
 }
