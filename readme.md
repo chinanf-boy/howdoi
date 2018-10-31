@@ -13,6 +13,7 @@ go get -v -u github.com/chinanf-boy/howdoi
 - [x] base Feature, Get the data
 - [x] Proxy can with [Socks5](./src/client.go#L44)
 - [x] how many answers you want
+- [ ] **go** func with questions
 - [ ] colorful Code text with shell env
 - [ ] cache Result ?
 - [ ] test file

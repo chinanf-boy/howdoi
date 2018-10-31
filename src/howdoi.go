@@ -89,12 +89,13 @@ func (clis Cli) getInstructions() ([]string, error) {
 		var n int
 		answers := make([]string, 0)
 
-		if clis.Num > len(questionLinks) {
+		if clis.Num > len(questionLinks) { // user num o/r questionLinks len
 			n = len(questionLinks)
 		} else {
 			n = clis.Num
 		}
-		for i := 0; i < n; i++ {
+		// TODO: go func
+		for i := 0; i < n; i++ { // the bigger one
 			var res string
 			answer := clis.getAnswer(questionLinks[i])
 			if len(answer) == 0 { // no answer
