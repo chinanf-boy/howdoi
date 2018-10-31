@@ -57,7 +57,7 @@ func extractLinks(doc *goquery.Document, engine string) []string {
 
 	var links []string
 	if engine == "bing" {
-		doc.Find(".b_algo h2 a").Each(func(i int, s *goquery.Selection) {
+		doc.Find("a").Each(func(i int, s *goquery.Selection) {
 			attr, exists := s.Attr("href")
 			if exists == true && isQuestion(attr) {
 				links = append(links, attr)
