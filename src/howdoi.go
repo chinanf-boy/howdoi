@@ -40,7 +40,7 @@ func init() {
 		verifySslCertificate = true
 	}
 	uRL = getEnv("HOWDOI_URL", "stackoverflow.com")
-	searchEngine = getEnv("HOWDOI_SEARCH_ENGINE", "google")
+	searchEngine = getEnv("HOWDOI_SEARCH_ENGINE", "bing")
 
 	searchUrls = map[string]string{
 		"bing":   scheme + "www.bing.com/search?q=%s site:%s",
