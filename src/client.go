@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/Go-zh/net/proxy"
+	"golang.org/x/net/proxy"
 )
 
 const (
