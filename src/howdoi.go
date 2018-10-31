@@ -12,6 +12,7 @@ import (
 	userAgent "github.com/EDDYCJY/fake-useragent"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/logrusorgru/aurora"
+	debug "github.com/visionmedia/go-debug"
 )
 
 var (
@@ -39,7 +40,7 @@ func init() {
 		verifySslCertificate = true
 	}
 	uRL = getEnv("HOWDOI_URL", "stackoverflow.com")
-	searchEngine = getEnv("HOWDOI_SEARCH_ENGINE", "bing")
+	searchEngine = getEnv("HOWDOI_SEARCH_ENGINE", "google")
 
 	searchUrls = map[string]string{
 		"bing":   scheme + "www.bing.com/search?q=%s site:%s",
@@ -53,7 +54,9 @@ func init() {
 
 // Howdoi string
 func Howdoi(res Cli) ([]string, error) {
-
+	if res.Debug {
+		debug.Enable("*")
+	}
 	res.Query = []string{strings.Replace(strings.Join(res.Query[:], " "), "?", "", -1)}
 
 	result, err := res.getInstructions()
@@ -65,15 +68,23 @@ func Howdoi(res Cli) ([]string, error) {
 }
 
 func (clis Cli) getInstructions() ([]string, error) {
+	gLog := debug.Debug("getInstructions")
+
 	var err error
 	links := clis.getLinks() // HERE
 	var questionLinks []string
 	if len(links) > 0 {
 		questionLinks = clis.getQuestions(links, isQuestion)
+
+		gLog(gree(fmt.Sprintf("0.1. questions: %d", len(questionLinks))))
+
 		if searchEngine == "google" {
 			questionLinks = cutURL(questionLinks)
 		}
 	}
+
+	gLog("1. questions: %d", len(questionLinks))
+
 	if len(questionLinks) > 0 {
 		var n int
 		answers := make([]string, 0)
@@ -101,6 +112,7 @@ func (clis Cli) getInstructions() ([]string, error) {
 			}
 			answers = append(answers, res) // add answer result
 		}
+		gLog("2. answers: %v", string(len(answers)))
 
 		return answers, nil
 
@@ -153,6 +165,9 @@ func (clis Cli) getLinks() []string {
 }
 
 func getResult(u string) *goquery.Document {
+	gLog := debug.Debug("getResult")
+	gLog("0. get URL:%v", u)
+
 	var res *http.Response
 	var err error
 

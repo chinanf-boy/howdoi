@@ -7,6 +7,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/logrusorgru/aurora"
+	debug "github.com/visionmedia/go-debug"
 )
 
 func getEnv(key, fallback string) string {
@@ -37,6 +38,8 @@ func cutURL(links []string) []string {
 	for _, v := range links {
 		if isRegexp(v, `^/url\?q=`) {
 			ls = append(ls, v[7:])
+		} else {
+			ls = append(ls, v[:])
 		}
 	}
 	return ls
@@ -50,29 +53,41 @@ func getSearchURL(s string) string {
 	return getMapDef(searchUrls, s, searchUrls["bing"])
 }
 func extractLinks(doc *goquery.Document, engine string) []string {
+	gLog := debug.Debug("extractLinks")
+
 	var links []string
 	if engine == "bing" {
 		doc.Find(".b_algo h2 a").Each(func(i int, s *goquery.Selection) {
 			attr, exists := s.Attr("href")
-			if exists == true {
+			if exists == true && isQuestion(attr) {
 				links = append(links, attr)
 			}
 		})
 	} else {
-		// doc.Find(".l").Each(func(i int, s *goquery.Selection) {
-		// 	attr, exists := s.Attr("href")
-		// 	if exists == true {
-		// 		links = append(links, attr)
-		// 	}
-		// })
-		doc.Find(".r a").Each(func(i int, s *goquery.Selection) {
-			attr, exists := s.Attr("href")
-			if exists == true {
-				links = append(links, attr)
-			}
-		})
+		one := doc.Find("a")
+		if one.Size() > 0 {
+			one.Each(func(i int, s *goquery.Selection) {
+				attr, exists := s.Attr("href")
+
+				if exists == true && isQuestion(attr) {
+					links = append(links, attr)
+				}
+			})
+		}
 	}
 
+	gLog("extract link %d", len(links))
+
+	// Cache what you got
+	// if len(links) == 0 {
+	// 	s, _ := doc.Html()
+	// 	gLog("page Hava text number %d", len(s))
+	// 	f, _ := os.Create("./index.html")
+	// 	n, _ := f.WriteString(s)
+
+	// 	redLog(string(n))
+
+	// }
 	return links
 }
 
@@ -95,4 +110,21 @@ func UqineSlice(elements []string) []string {
 
 func redLog(s string) {
 	fmt.Println(aurora.Red(s))
+}
+
+func red(s string) string {
+	return aurora.Red(s).String()
+}
+
+func gree(s string) string {
+	return aurora.Green(s).String()
+}
+
+func cyan(s string) string {
+	return aurora.Cyan(s).String()
+}
+
+func format(f string, s ...interface{}) string {
+
+	return fmt.Sprintf(f, s...)
 }
