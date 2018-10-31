@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"sync"
 
 	userAgent "github.com/EDDYCJY/fake-useragent"
 	"github.com/PuerkitoBio/goquery"
@@ -95,24 +96,34 @@ func (clis Cli) getInstructions() ([]string, error) {
 			n = clis.Num
 		}
 		// TODO: go func
+		var wg sync.WaitGroup
+		wg.Add(n)
+		
 		for i := 0; i < n; i++ { // the bigger one
-			var res string
-			answer := clis.getAnswer(questionLinks[i])
-			if len(answer) == 0 { // no answer
-				res = noAnswerMsg
-			} else if n > 1 { // user want more answers
-				comeFrom := fmt.Sprintf(answerHeader,
-					starHeader,
-					questionLinks[i],
-					strings.Join(answer, "\n"))
 
-				res = comeFrom
+			go func(i int) {
+				var res string
+				answer := clis.getAnswer(questionLinks[i])
+				if len(answer) == 0 { // no answer
+					res = noAnswerMsg
+				} else if n > 1 { // user want more answers
+					comeFrom := fmt.Sprintf(answerHeader,
+						starHeader,
+						questionLinks[i],
+						strings.Join(answer, "\n"))
 
-			} else { // one answer
-				res = strings.Join(answer, "\n")
-			}
-			answers = append(answers, res) // add answer result
+					res = comeFrom
+
+				} else { // one answer
+					res = strings.Join(answer, "\n")
+				}
+				answers = append(answers, res) // add answer result
+				wg.Done()
+			}(i)
 		}
+
+		wg.Wait()
+
 		gLog("2. answers: %v", string(len(answers)))
 
 		return answers, nil
