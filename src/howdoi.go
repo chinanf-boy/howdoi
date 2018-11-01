@@ -139,13 +139,27 @@ func (clis Cli) getAnswer(u string) []string {
 	return clis.extractAnswer(doc)
 }
 
-func (clis Cli) extractAnswer(doc *goquery.Document) []string {
+func (clis *Cli) extractAnswer(doc *goquery.Document) []string {
+	gLog := debug.Debug("extractAnswer")
+
 	links := make([]string, 0)
+	tags := make([]string, 0)
+	// get tag , use by chroma lexer
+	getTags := doc.Find(".post-tag")
+	if getTags.Size() > 0 {
+		getTags.Each(func(i int, s *goquery.Selection) {
+			str := s.Text()
+			tags = append(tags, str)
+		})
+	}
+	gLog("got post-tag: %v", tags)
+	clis.setTags(tags)
+
 	instructions := doc.Find(".answer").First().Find("pre")
 	if instructions.Size() > 0 {
 		instructions.Each(func(i int, s *goquery.Selection) {
-			str := s.Text() // TODO: colored code with term
-			str = colorCode(str, clis)
+			str := s.Text()
+			str = colorCode(str, *clis) // use chroma, colorful code
 			links = append(links, str)
 		})
 	} else {

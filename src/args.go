@@ -15,6 +15,7 @@ type Cli struct {
 	Version bool
 	Debug   bool
 	Theme   string
+	Tags    []string
 }
 
 // ArgsPar : get me parse OS.args with howdoi.Cli struct
@@ -26,7 +27,7 @@ func ArgsPar() (Cli, error) {
 	num := parser.Int("n", "num", &argparse.Options{Required: false, Help: "how many answer", Default: 1})
 	query := parser.List("q", "query", &argparse.Options{Required: true, Help: "query what"})
 	debug := parser.Flag("D", "debug", &argparse.Options{Required: false, Help: "debug *"})
-	theme := parser.String("T", "code theme", &argparse.Options{Required: false, Help: "chrome styles", Default: "dark"})
+	theme := parser.String("T", "code theme", &argparse.Options{Required: false, Help: "chrome styles", Default: "pygments"})
 
 	// Parse input
 	err := parser.Parse(os.Args)
@@ -44,4 +45,8 @@ func ArgsPar() (Cli, error) {
 		Theme:   *theme}
 
 	return res, errStr
+}
+
+func (f *Cli) setTags(tags []string) {
+    f.Tags = tags
 }

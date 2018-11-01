@@ -14,7 +14,7 @@ go get -v -u github.com/chinanf-boy/howdoi
 - [x] Proxy can with [Socks5](./src/client.go#L44)
 - [x] how many answers you want
 - [x] **go** func with questions
-- [ ] colorful Code text with shell env, [chroma](https://godoc.org/github.com/alecthomas/chroma)
+- [x] colorful Code text with shell env, [chroma](https://godoc.org/github.com/alecthomas/chroma)
 - [ ] cache Result ?
 - [ ] test file
 
@@ -37,7 +37,7 @@ ENV | Desc | Default
 | **HOWDOI_DISABLE_SSL** | change `https://` => `http://` | `nil`
 | **HOWDOI_URL** | search engine with the ask website  | `stackoverflow.com`
 | **HOWDOI_SEARCH_ENGINE** | search engine{bing\|google} | `bing`
-| **-T**| [chroma theme](#chroma-theme) | ``
+| **-T**| [chroma theme](#chroma-theme) | `pygments`
 
 ### Ref
 
@@ -60,17 +60,20 @@ ENV | Desc | Default
 
 ``` js
 usage: howdoi [-h|--help] [-c|--color] [-v|--version] [-n|--num <integer>]
-              -q|--query "<value>" [-q|--query "<value>" ...]
+              -q|--query "<value>" [-q|--query "<value>" ...] [-D|--debug]
+              [-T|--code theme "<value>"]
 
               cli to Ask the question
 
 Arguments:
 
-  -h  --help     Print help information
-  -c  --color    colorful Output. Default: false
-  -v  --version  version
-  -n  --num      how many answer. Default: 1
-  -q  --query    query what
+  -h  --help        Print help information
+  -c  --color       colorful Output. Default: false
+  -v  --version     version
+  -n  --num         how many answer. Default: 1
+  -q  --query       query what
+  -D  --debug       debug *
+  -T  --code theme  chrome styles. Default: pygments
 ```
 
 ### Why rewrite
