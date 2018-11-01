@@ -98,7 +98,7 @@ func (clis Cli) getInstructions() ([]string, error) {
 		// TODO: go func
 		var wg sync.WaitGroup
 		wg.Add(n)
-		
+
 		for i := 0; i < n; i++ { // the bigger one
 
 			go func(i int) {
@@ -136,15 +136,16 @@ func (clis Cli) getInstructions() ([]string, error) {
 
 func (clis Cli) getAnswer(u string) []string {
 	doc := getResult(u)
-	return extractAnswer(doc)
+	return clis.extractAnswer(doc)
 }
 
-func extractAnswer(doc *goquery.Document) []string {
+func (clis Cli) extractAnswer(doc *goquery.Document) []string {
 	links := make([]string, 0)
 	instructions := doc.Find(".answer").First().Find("pre")
 	if instructions.Size() > 0 {
 		instructions.Each(func(i int, s *goquery.Selection) {
 			str := s.Text() // TODO: colored code with term
+			str = colorCode(str, clis)
 			links = append(links, str)
 		})
 	} else {
