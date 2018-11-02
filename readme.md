@@ -8,6 +8,8 @@ Copy from [howdoi:py](https://github.com/gleitz/howdoi), But no done yet
 go get -v -u github.com/chinanf-boy/howdoi
 ```
 
+> of cos, [releases](https://github.com/chinanf-boy/howdoi/releases)
+
 ### TODO
 
 - [x] base Feature, Get the data
