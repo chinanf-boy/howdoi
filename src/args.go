@@ -15,6 +15,7 @@ type Cli struct {
 	Version bool
 	Debug   bool
 	Theme   string
+	Cache   bool
 }
 
 // ArgsPar : get me parse OS.args with howdoi.Cli struct
@@ -26,7 +27,8 @@ func ArgsPar() (Cli, error) {
 	num := parser.Int("n", "num", &argparse.Options{Required: false, Help: "how many answer", Default: 1})
 	query := parser.List("q", "query", &argparse.Options{Required: true, Help: "query what"})
 	debug := parser.Flag("D", "debug", &argparse.Options{Required: false, Help: "debug *"})
-	theme := parser.String("T", "code theme", &argparse.Options{Required: false, Help: "chrome styles", Default: "pygments"})
+	theme := parser.String("T", "theme", &argparse.Options{Required: false, Help: "chrome styles", Default: "pygments"})
+	cache := parser.Flag("C", "cache", &argparse.Options{Required: false, Help: "cache [path]", Default: false})
 
 	// Parse input
 	err := parser.Parse(os.Args)
@@ -41,7 +43,8 @@ func ArgsPar() (Cli, error) {
 		Query:   *query,
 		Version: *version,
 		Debug:   *debug,
-		Theme:   *theme}
+		Theme:   *theme,
+		Cache:   *cache}
 
 	return res, errStr
 }
