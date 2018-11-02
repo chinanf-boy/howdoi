@@ -28,7 +28,7 @@ func ArgsPar() (Cli, error) {
 	query := parser.List("q", "query", &argparse.Options{Required: true, Help: "query what"})
 	debug := parser.Flag("D", "debug", &argparse.Options{Required: false, Help: "debug *"})
 	theme := parser.String("T", "theme", &argparse.Options{Required: false, Help: "chrome styles", Default: "pygments"})
-	cache := parser.Flag("C", "cache", &argparse.Options{Required: false, Help: "cache [path]", Default: false})
+	cache := parser.Flag("C", "cache", &argparse.Options{Required: false, Help: "cache response?", Default: false})
 
 	// Parse input
 	err := parser.Parse(os.Args)

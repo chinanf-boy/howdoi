@@ -1,10 +1,13 @@
 package howdoi
 
 import (
+	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"os"
 	"strings"
@@ -25,9 +28,6 @@ var (
 	searchUrls           map[string]string
 	answerHeader         string
 	noAnswerMsg          string
-	xdgCacheDir          string
-	cacheDir             string
-	cacheFile            string
 	howdoiSession        string
 	searchEngine         string
 )
@@ -51,16 +51,19 @@ func init() {
 	starHeader = "\u2605"
 	answerHeader = "%s Answer from  " + aurora.Green("%s").String() + "\n\n%s"
 	noAnswerMsg = "< no answer given >"
+
+	// cache
+	cacheDir = getEnv("HOWDOI_CACHE_DIR", "")
 }
 
 // Howdoi string
-func Howdoi(res Cli) ([]string, error) {
-	if res.Debug {
+func Howdoi(cli Cli) ([]string, error) {
+	if cli.Debug {
 		debug.Enable("*")
 	}
-	res.Query = []string{strings.Replace(strings.Join(res.Query[:], " "), "?", "", -1)}
+	cli.Query = []string{strings.Replace(strings.Join(cli.Query[:], " "), "?", "", -1)}
 
-	result, err := res.getInstructions()
+	result, err := cli.getInstructions()
 
 	if err != nil {
 		return nil, err
@@ -77,7 +80,7 @@ func (clis Cli) getInstructions() ([]string, error) {
 	if len(links) > 0 {
 		questionLinks = clis.getQuestions(links, isQuestion)
 
-		gLog(gree(fmt.Sprintf("0.1. questions: %d", len(questionLinks))))
+		gLog(gree(fmt.Sprintf("0.2. questions: %d", len(questionLinks))))
 
 		if searchEngine == "google" {
 			questionLinks = cutURL(questionLinks)
@@ -135,7 +138,7 @@ func (clis Cli) getInstructions() ([]string, error) {
 }
 
 func (clis Cli) getAnswer(u string) []string {
-	doc := getResult(u)
+	doc := clis.getResult(u)
 	return clis.extractAnswer(doc)
 }
 
@@ -189,48 +192,74 @@ func (clis Cli) getLinks() []string {
 
 	q := u.Query()
 	u.RawQuery = q.Encode() //urlencode
-	doc := getResult(u.String())
+	doc := clis.getResult(u.String())
 	return extractLinks(doc, searchEngine)
 }
 
-func getResult(u string) *goquery.Document {
+func (clis Cli) getResult(u string) *goquery.Document {
 	gLog := debug.Debug("getResult")
 	gLog("0. get URL:%v", u)
 
-	var res *http.Response
+	var resp *http.Response
 	var err error
 
-	proxyIs := whichProxy()
+	cacheHandle := CacheHowdoi{cacheDir} // Get Cache
+	cacheBoby, ok := cacheHandle.cached(u)
+	// TODO ? clis.ReCache
+	if ok {
+		// resp from Cache
+		gLog(gree("0. Resq from Cache"))
 
-	// User-Agent random
-	req, err := http.NewRequest("GET", u, nil)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	req.Header.Set("User-Agent", userAgent.Random())
-
-	if proxyIs == SOCKS {
-		httpClient := Socks5Client()
-		res, err = httpClient.Do(req)
-	} else {
-		client := &http.Client{}
-		res, err = client.Do(req)
-	}
-
-	if err != nil {
-		log.Fatalln(aurora.Red("请求失败:"+searchEngine), err)
-	} else {
-		defer res.Body.Close()
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalln(aurora.Red("status code error:"), res.Request.URL, res.Status)
-	} else {
-		doc, err := goquery.NewDocumentFromReader(res.Body)
+		r := bufio.NewReader(bytes.NewReader(cacheBoby))
+		resp, err = http.ReadResponse(r, nil)
 		if err != nil {
-			log.Fatalln(aurora.Red("goquery.NewDocumentFromReader error:"), err)
+			log.Fatal(err)
 		}
-		return doc
+	} else { // GET URL
+		gLog(cyan("0. Resq from GET URL"))
+		var req *http.Request
+
+		// User-Agent random
+		req, err = http.NewRequest("GET", u, nil)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		req.Header.Set("User-Agent", userAgent.Random())
+
+		proxyIs := whichProxy()
+		if proxyIs == SOCKS {
+			httpClient := Socks5Client()
+			resp, err = httpClient.Do(req)
+		} else {
+			client := &http.Client{}
+			resp, err = client.Do(req)
+		}
+
+		if err != nil {
+			log.Fatalln(aurora.Red("请求失败:"+searchEngine), err)
+		} else {
+			defer resp.Body.Close()
+		}
+
+		if resp.StatusCode != 200 { // no 200, can no Cache
+			log.Fatalln(aurora.Red("status code error:"), resp.Request.URL, resp.Status)
+		}
+
+		// Keep Cache
+		if clis.Cache {
+			body, err := httputil.DumpResponse(resp, clis.Cache)
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			CacheResq(u, body, cacheDir)
+		}
 	}
-	return nil
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		log.Fatalln(aurora.Red("goquery.NewDocumentFromReader error:"), err)
+	}
+	return doc
 }
