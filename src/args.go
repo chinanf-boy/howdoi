@@ -15,7 +15,6 @@ type Cli struct {
 	Version bool
 	Debug   bool
 	Theme   string
-	Tags    []string
 }
 
 // ArgsPar : get me parse OS.args with howdoi.Cli struct
@@ -45,8 +44,4 @@ func ArgsPar() (Cli, error) {
 		Theme:   *theme}
 
 	return res, errStr
-}
-
-func (f *Cli) setTags(tags []string) {
-    f.Tags = tags
 }

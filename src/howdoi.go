@@ -153,13 +153,15 @@ func (clis *Cli) extractAnswer(doc *goquery.Document) []string {
 		})
 	}
 	gLog("got post-tag: %v", tags)
-	clis.setTags(tags)
 
 	instructions := doc.Find(".answer").First().Find("pre")
 	if instructions.Size() > 0 {
 		instructions.Each(func(i int, s *goquery.Selection) {
 			str := s.Text()
-			str = colorCode(str, *clis) // use chroma, colorful code
+			str = colorCode(str, &ChromaColor{
+				Color: clis.Color,
+				Tags:  tags,
+				Theme: clis.Theme}) // use chroma, colorful code
 			links = append(links, str)
 		})
 	} else {

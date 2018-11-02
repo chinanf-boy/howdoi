@@ -10,7 +10,14 @@ import (
 	debug "github.com/visionmedia/go-debug"
 )
 
-func colorCode(s string, data Cli) string {
+// ChromaColor struct for colorCode func
+type ChromaColor struct {
+	Color bool
+	Tags []string
+	Theme string
+
+}
+func colorCode(s string, data *ChromaColor) string {
 	gLog := debug.Debug("colorCode")
 
 	if data.Color == false {
