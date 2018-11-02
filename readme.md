@@ -15,7 +15,7 @@ go get -v -u github.com/chinanf-boy/howdoi
 - [x] how many answers you want `-n`
 - [x] **go** func with questions
 - [x] colorful Code text with shell env `-c`/`-T`, [chroma](https://godoc.org/github.com/alecthomas/chroma)
-- [x] cache Result `-C`
+- [x] cache Result `-C` [useful refs](https://github.com/chinanf-boy/howdoi/issues/3)
 - [ ] ReCache Result ?
 - [ ] test file
 
