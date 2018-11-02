@@ -5,17 +5,17 @@ addons:
   apt:
     packages:
     # needed for the nfpm pipe:
-    - rpm
+    # - rpm
     # needed for the snap pipe:
-    - snapcraft
+    # - snapcraft
 
 env:
 # needed for the snap pipe:
-- PATH=/snap/bin:$PATH
+# - PATH=/snap/bin:$PATH
 
 install:
 # needed for the snap pipe:
-- sudo snap install snapcraft --classic
+# - sudo snap install snapcraft --classic
 
 # needed for the docker pipe
 services:
@@ -36,6 +36,7 @@ after_success:
 deploy:
 - provider: script
   skip_cleanup: true
+  github_token: $GITHUB_TOKEN
   script: curl -sL https://git.io/goreleaser | bash
   on:
     tags: true

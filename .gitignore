@@ -3,3 +3,4 @@ node_modules/
 fork
 source
 .vscode
+dist
