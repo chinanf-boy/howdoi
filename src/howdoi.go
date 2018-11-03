@@ -24,11 +24,9 @@ var (
 	scheme               string
 	uRL                  string
 	starHeader           string
-	userAgents           []string
 	searchUrls           map[string]string
 	answerHeader         string
 	noAnswerMsg          string
-	howdoiSession        string
 	searchEngine         string
 )
 
@@ -48,6 +46,7 @@ func init() {
 		"google": scheme + "www.google.com/search?q=%s site:%s",
 	}
 
+	// format output
 	starHeader = "\u2605"
 	answerHeader = "%s Answer from  " + aurora.Green("%s").String() + "\n\n%s"
 	noAnswerMsg = "< no answer given >"
@@ -206,7 +205,7 @@ func (clis Cli) getResult(u string) *goquery.Document {
 	cacheHandle := CacheHowdoi{cacheDir} // Get Cache
 	cacheBoby, ok := cacheHandle.cached(u)
 	// TODO ? clis.ReCache
-	if ok {
+	if ok && !clis.ReCache {
 		// resp from Cache
 		gLog(gree("0. Resq from Cache"))
 
@@ -216,6 +215,7 @@ func (clis Cli) getResult(u string) *goquery.Document {
 			log.Fatal(err)
 		}
 	} else { // GET URL
+		gLog(red("ReCache:%v"), clis.ReCache)
 		gLog(cyan("0. Resq from GET URL"))
 		var req *http.Request
 

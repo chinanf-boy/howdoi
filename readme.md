@@ -18,8 +18,9 @@ go get -v -u github.com/chinanf-boy/howdoi
 - [x] **go** func with questions
 - [x] colorful Code text with shell env `-c`/`-T`, [chroma](https://godoc.org/github.com/alecthomas/chroma)
 - [x] cache Result `-C` [useful refs](https://github.com/chinanf-boy/howdoi/issues/3)
-- [ ] ReCache Result ?
+- [x] ReCache Result ?
 - [ ] test file
+- [ ] [Issue me anything](https://github.com/chinanf-boy/howdoi/issues/new)
 
 > **Notes:** , cli-name Over the Python version cli
 
@@ -66,7 +67,7 @@ About the `ENV`
 ```js
 usage: howdoi [-h|--help] [-c|--color] [-v|--version] [-n|--num <integer>]
               -q|--query "<value>" [-q|--query "<value>" ...] [-D|--debug]
-              [-T|--theme "<value>"] [-C|--cache]
+              [-T|--theme "<value>"] [-C|--cache] [-R|--recache]
 
               cli to Ask the question
 
@@ -79,7 +80,8 @@ Arguments:
   -q  --query    query what
   -D  --debug    debug *
   -T  --theme    chrome styles. Default: pygments
-  -C  --cache    cache response? . Default: false
+  -C  --cache    cache response?. Default: false
+  -R  --recache  ReCache response?. Default: false
 ```
 
 ### Why rewrite
