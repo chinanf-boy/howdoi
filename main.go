@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"log"
 
-	howdoi "github.com/chinanf-boy/howdoi/src"
+	howdoi "github.com/chinanf-boy/howdoi/pkg"
 	"github.com/logrusorgru/aurora"
 )
 
 const (
-	version = "0.3.0"
+	version = "0.3.1"
 	name    = "howdoi-cli"
 )
 
