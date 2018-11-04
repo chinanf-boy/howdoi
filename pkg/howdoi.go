@@ -30,6 +30,8 @@ var (
 	searchEngine         string
 )
 
+const allSearchEngine = "ALL"
+
 func init() {
 	if len(os.Getenv("HOWDOI_DISABLE_SSL")) > 0 {
 		scheme = "http://"
@@ -39,7 +41,7 @@ func init() {
 		verifySslCertificate = true
 	}
 	uRL = getEnv("HOWDOI_URL", "stackoverflow.com")
-	searchEngine = getEnv("HOWDOI_SEARCH_ENGINE", "bing")
+	searchEngine = getEnv("HOWDOI_SEARCH_ENGINE", allSearchEngine)
 
 	searchUrls = map[string]string{
 		"bing":   scheme + "www.bing.com/search?q=%s site:%s",
@@ -60,6 +62,7 @@ func Howdoi(cli Cli) ([]string, error) {
 	if cli.Debug {
 		debug.Enable("*")
 	}
+
 	cli.Query = []string{strings.Replace(strings.Join(cli.Query[:], " "), "?", "", -1)}
 
 	result, err := cli.getInstructions()
@@ -79,11 +82,7 @@ func (clis Cli) getInstructions() ([]string, error) {
 	if len(links) > 0 {
 		questionLinks = clis.getQuestions(links, isQuestion)
 
-		gLog(gree(fmt.Sprintf("0.2. questions: %d", len(questionLinks))))
-
-		if searchEngine == "google" {
-			questionLinks = cutURL(questionLinks)
-		}
+		gLog(gree(fmt.Sprintf("0.2. match questions links: %d", len(questionLinks))))
 	}
 
 	gLog("1. questions: %d", len(questionLinks))
@@ -120,7 +119,7 @@ func (clis Cli) getInstructions() ([]string, error) {
 					res = strings.Join(answer, "\n")
 				}
 				answers = append(answers, res) // add answer result
-				
+
 			}(i)
 		}
 
@@ -129,15 +128,18 @@ func (clis Cli) getInstructions() ([]string, error) {
 		gLog("2. answers: %v", string(len(answers)))
 
 		return answers, nil
-
 	}
-	err = errors.New(aurora.Red("no questions link").String())
+
+	err = errors.New(aurora.Red("howdoi fail").String())
 
 	return nil, err
 }
 
 func (clis Cli) getAnswer(u string) []string {
-	doc := clis.getResult(u)
+	doc, err := clis.getResult(u)
+	if err != nil {
+		return []string{}
+	}
 	return clis.extractAnswer(doc)
 }
 
@@ -181,23 +183,78 @@ func (clis Cli) getQuestions(links []string, f func(string) bool) []string {
 		}
 	}
 	vsf = UqineSlice(vsf)
+
+	// that action, do that for goole links
+	vsf = cutURL(vsf)
+
 	return vsf
 }
 
 func (clis Cli) getLinks() []string {
 
-	searchURL := getSearchURL(searchEngine)
-	u, _ := url.Parse(fmt.Sprintf(searchURL, clis.Query[0], uRL))
+	var links []string
 
-	q := u.Query()
-	u.RawQuery = q.Encode() //urlencode
-	doc := clis.getResult(u.String())
-	return extractLinks(doc, searchEngine)
+	linksChan := make(chan []string)
+
+	// ALL engine or User select one
+	var finalEngine map[string]string
+	if searchEngine != allSearchEngine {
+		finalEngine = map[string]string{
+			searchEngine: getSearchURL(searchEngine)}
+	} else {
+		finalEngine = searchUrls
+	}
+
+	for engine, searchURL := range finalEngine {
+
+		go func(searchURL, engine string) {
+			u, _ := url.Parse(fmt.Sprintf(searchURL, clis.Query[0], uRL))
+			q := u.Query()
+			u.RawQuery = q.Encode() //urlencode
+			doc, err := clis.getResult(u.String())
+
+			if err == nil {
+				linksChan <- extractLinks(doc, engine)
+			} else {
+				linksChan <- nil
+			}
+
+		}(searchURL, engine)
+
+	}
+
+	for i := 0; i < len(finalEngine); i++ {
+		if res := <-linksChan; res != nil {
+			links = res // just the most fasest
+			break
+		}
+	}
+
+	go func() {
+		<-linksChan // free the last chan
+	}()
+
+	return links
 }
 
-func (clis Cli) getResult(u string) *goquery.Document {
+func (clis Cli) getResult(u string) (doc *goquery.Document, reqErr error) {
 	gLog := debug.Debug("getResult")
 	gLog("0. get URL:%v", u)
+
+	defer func() { // hold the error msg
+		if r := recover(); r != nil {
+			switch x := r.(type) {
+			case string:
+				reqErr = errors.New(x)
+			case error:
+				reqErr = x
+			default:
+				reqErr = errors.New("Unknown panic")
+			}
+			// invalidate rep
+			doc = nil
+		}
+	}()
 
 	var resp *http.Response
 	var err error
@@ -212,7 +269,7 @@ func (clis Cli) getResult(u string) *goquery.Document {
 		r := bufio.NewReader(bytes.NewReader(cacheBoby))
 		resp, err = http.ReadResponse(r, nil)
 		if err != nil {
-			log.Fatal(err)
+			log.Panicln(err)
 		}
 	} else { // GET URL
 		gLog(red("ReCache:%v"), clis.ReCache)
@@ -222,7 +279,7 @@ func (clis Cli) getResult(u string) *goquery.Document {
 		// User-Agent random
 		req, err = http.NewRequest("GET", u, nil)
 		if err != nil {
-			log.Fatalln(err)
+			log.Panicln(err)
 		}
 		req.Header.Set("User-Agent", userAgent.Random())
 
@@ -236,13 +293,13 @@ func (clis Cli) getResult(u string) *goquery.Document {
 		}
 
 		if err != nil {
-			log.Fatalln(aurora.Red("请求失败:"+searchEngine), err)
+			log.Panicln(aurora.Red("请求失败:"), err)
 		} else {
 			defer resp.Body.Close()
 		}
 
 		if resp.StatusCode != 200 { // no 200, can no Cache
-			log.Fatalln(aurora.Red("status code error:"), resp.Request.URL, resp.Status)
+			log.Panicln(aurora.Red("status code error:"), resp.Request.URL, resp.Status)
 		}
 
 		// Keep Cache
@@ -250,16 +307,17 @@ func (clis Cli) getResult(u string) *goquery.Document {
 			body, err := httputil.DumpResponse(resp, clis.Cache)
 
 			if err != nil {
-				log.Fatal(err)
+				log.Panicln(err)
 			}
 
 			CacheResq(u, body, cacheDir)
 		}
 	}
 
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	doc, err = goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		log.Fatalln(aurora.Red("goquery.NewDocumentFromReader error:"), err)
+		log.Panicln(aurora.Red("goquery.NewDocumentFromReader error:"), err)
 	}
-	return doc
+
+	return
 }

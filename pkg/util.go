@@ -38,11 +38,12 @@ func cutURL(links []string) []string {
 	for _, v := range links {
 		if isRegexp(v, `^/url\?q=`) {
 			ls = append(ls, v[7:])
-		} else {
-			ls = append(ls, v[:])
 		}
 	}
-	return ls
+	if len(ls) > 0 {
+		return ls
+	}
+	return links
 }
 func isQuestion(s string) bool {
 	m := isRegexp(s, `questions/\d+/`)
@@ -76,7 +77,7 @@ func extractLinks(doc *goquery.Document, engine string) []string {
 		}
 	}
 
-	gLog("extract link %d", len(links))
+	gLog("%s, extract link %d", engine, len(links))
 
 	// Cache what you got
 	// if len(links) == 0 {

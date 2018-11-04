@@ -19,6 +19,7 @@ go get -v -u github.com/chinanf-boy/howdoi
 - [x] colorful Code text with shell env `-c`/`-T`, [chroma](https://godoc.org/github.com/alecthomas/chroma)
 - [x] cache Result `-C` [useful refs](https://github.com/chinanf-boy/howdoi/issues/3)
 - [x] ReCache Result ?
+- [x] **go** func with ALL engines
 - [ ] test file
 - [ ] [Issue me anything](https://github.com/chinanf-boy/howdoi/issues/new)
 
@@ -40,9 +41,11 @@ About the `ENV`
 | ------------------------ | ---------------------------------- | --------------------- |
 | **HOWDOI_DISABLE_SSL**   | change `https://` => `http://`     | `nil`                 |
 | **HOWDOI_URL**           | search engine with the ask website | `stackoverflow.com`   |
-| **HOWDOI_SEARCH_ENGINE** | search engine{bing\|google}        | `bing`                |
+| **HOWDOI_SEARCH_ENGINE** | search engine{`bing`\|`google`}    | `ALL`                 |
 | **HOWDOI_CACHE_DIR**     | http Response - Cached dir         | `$HOME/.howdoi-cache` |
 | **-T**                   | [chroma theme](#chroma-theme)      | `pygments`            |
+
+> HOWDOI_SEARCH_ENGINE, default `ALL`, mean GET ALL engines, but got the winner about speed.
 
 > **NOTE**, careful about **Cache dir**, you will miss the ever Data after you changed diff HOWDOI_CACHE_DIR。
 
