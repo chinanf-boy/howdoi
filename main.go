@@ -8,10 +8,8 @@ import (
 	"github.com/logrusorgru/aurora"
 )
 
-const (
-	version = "0.3.1"
-	name    = "howdoi-cli"
-)
+var version string
+var name = "howdoi-cli"
 
 func main() {
 
