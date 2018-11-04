@@ -93,19 +93,16 @@ func extractLinks(doc *goquery.Document, engine string) []string {
 
 // UqineSlice remove same string with slice
 func UqineSlice(elements []string) []string {
-	encountered := map[string]bool{}
-
-	// Create a map of all unique elements.
-	for v := range elements {
-		encountered[elements[v]] = true
+	ret := elements[:0]
+	// 利用 struct{}{} 减少内存占用
+	assist := map[string]struct{}{}
+	for _, v := range elements {
+		if _, ok := assist[v]; !ok {
+			assist[v] = struct{}{}
+			ret = append(ret, v)
+		}
 	}
-
-	// Place all keys from the map into a slice.
-	result := []string{}
-	for key := range encountered {
-		result = append(result, key)
-	}
-	return result
+	return ret
 }
 
 func redLog(s string) {
