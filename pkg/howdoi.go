@@ -97,13 +97,13 @@ func (clis Cli) getInstructions() ([]string, error) {
 		} else {
 			n = clis.Num
 		}
-		// TODO: go func
+		// checkd TODO: go func,
 		var wg sync.WaitGroup
-		wg.Add(n)
 
 		for i := 0; i < n; i++ { // the bigger one
-
+			wg.Add(1)
 			go func(i int) {
+				defer wg.Done()
 				var res string
 				answer := clis.getAnswer(questionLinks[i])
 				if len(answer) == 0 { // no answer
@@ -120,7 +120,7 @@ func (clis Cli) getInstructions() ([]string, error) {
 					res = strings.Join(answer, "\n")
 				}
 				answers = append(answers, res) // add answer result
-				wg.Done()
+				
 			}(i)
 		}
 
