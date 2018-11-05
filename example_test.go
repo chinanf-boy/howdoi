@@ -2,24 +2,21 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
+	"testing"
 
 	howdoi "github.com/chinanf-boy/howdoi/pkg"
 	"github.com/logrusorgru/aurora"
 )
 
-var (
-	version = "dev"
-	commit  = "none"
-	date    = "unknown"
-	name    = "howdoi-cli"
-)
-
-func main() {
+func TestExample(t *testing.T) {
 
 	// use Lib for howdoi, ArgsPar get the howdoi.Cli struct
-	res, err := howdoi.ArgsPar(os.Args)
+
+	exampleArgs := append(os.Args, "-q")
+	exampleArgs = append(exampleArgs, "format date bash")
+
+	res, err := howdoi.ArgsPar(exampleArgs)
 
 	if res.Version {
 		fmt.Printf(aurora.Green(name + ", version:" + version).String())
@@ -29,18 +26,21 @@ func main() {
 	}
 
 	if err != nil {
-		log.Fatalln(err)
+		fmt.Println("args parse fail", err)
+		t.Fail()
 	}
 
 	// pass howdoi.Cli
-	result, err := howdoi.Howdoi(res)
+	_, err = howdoi.Howdoi(res)
 
 	if err != nil {
-		log.Fatalln(err)
+		fmt.Println("howdoi fail", err)
+
+		t.Fail()
 	}
 
-	for _, v := range result {
-		fmt.Println()
-		fmt.Println(v)
-	}
+	// for _, v := range result {
+	// 	fmt.Println()
+	// 	fmt.Println(v)
+	// }
 }

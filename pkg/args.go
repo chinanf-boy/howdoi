@@ -1,8 +1,6 @@
 package howdoi
 
 import (
-	"os"
-
 	"github.com/akamensky/argparse"
 )
 
@@ -19,7 +17,7 @@ type Cli struct {
 }
 
 // ArgsPar : get me parse OS.args with howdoi.Cli struct
-func ArgsPar() (Cli, error) {
+func ArgsPar(args []string) (Cli, error) {
 	parser := argparse.NewParser("howdoi", "cli to Ask the question")
 
 	color := parser.Flag("c", "color", &argparse.Options{Required: false, Help: "colorful Output", Default: false})
@@ -32,7 +30,7 @@ func ArgsPar() (Cli, error) {
 	reCache := parser.Flag("R", "recache", &argparse.Options{Required: false, Help: "ReCache response?", Default: false})
 
 	// Parse input
-	err := parser.Parse(os.Args)
+	err := parser.Parse(args)
 
 	res := Cli{
 		Color:   *color,
