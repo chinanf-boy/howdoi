@@ -13,7 +13,6 @@ import (
 	"strings"
 	"sync"
 
-	userAgent "github.com/EDDYCJY/fake-useragent"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/logrusorgru/aurora"
 	debug "github.com/visionmedia/go-debug"
@@ -281,7 +280,7 @@ func (clis Cli) getResult(u string) (doc *goquery.Document, reqErr error) {
 		if err != nil {
 			log.Panicln(err)
 		}
-		req.Header.Set("User-Agent", userAgent.Random())
+		req.Header.Set("User-Agent", getRandomUA())
 
 		proxyIs := whichProxy()
 		if proxyIs == SOCKS {
