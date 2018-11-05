@@ -1,7 +1,6 @@
 package howdoi
 
 import (
-	"errors"
 	"os"
 
 	"github.com/akamensky/argparse"
@@ -34,10 +33,6 @@ func ArgsPar() (Cli, error) {
 
 	// Parse input
 	err := parser.Parse(os.Args)
-	var errStr error
-	if err != nil {
-		errStr = errors.New(parser.Usage(err))
-	}
 
 	res := Cli{
 		Color:   *color,
@@ -49,5 +44,5 @@ func ArgsPar() (Cli, error) {
 		Cache:   *cache,
 		ReCache: *reCache}
 
-	return res, errStr
+	return res, err
 }

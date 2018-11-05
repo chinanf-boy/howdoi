@@ -8,8 +8,12 @@ import (
 	"github.com/logrusorgru/aurora"
 )
 
-var version string
-var name = "howdoi-cli"
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+	name = "howdoi-cli"
+)
 
 func main() {
 
@@ -18,6 +22,8 @@ func main() {
 
 	if res.Version {
 		fmt.Printf(aurora.Green(name + ", version:" + version).String())
+		fmt.Printf("date:%s", date)
+		fmt.Printf("commit:%s", commit)
 		return
 	}
 
