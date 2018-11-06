@@ -1,7 +1,10 @@
 package howdoi
 
 import (
+	"strings"
+
 	"github.com/akamensky/argparse"
+	debug "github.com/visionmedia/go-debug"
 )
 
 // Cli args struct for cli
@@ -14,6 +17,7 @@ type Cli struct {
 	Theme   string
 	Cache   bool
 	ReCache bool
+	UseNum  int
 }
 
 // ArgsPar : get me parse OS.args with howdoi.Cli struct
@@ -43,4 +47,22 @@ func ArgsPar(args []string) (Cli, error) {
 		ReCache: *reCache}
 
 	return res, err
+}
+
+func (clis *Cli) setQuery(s []string) {
+	clis.Query = s
+}
+
+func (clis *Cli) setUseNum(s int) {
+	clis.UseNum = s
+}
+
+func (clis *Cli) prePare() {
+	if clis.Debug {
+		debug.Enable("*")
+	}
+
+	nstr := []string{strings.Replace(strings.Join(clis.Query[:], " "), "?", "", -1)}
+
+	clis.setQuery(nstr)
 }

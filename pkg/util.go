@@ -1,6 +1,7 @@
 package howdoi
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"regexp"
@@ -125,4 +126,14 @@ func cyan(s string) string {
 func format(f string, s ...interface{}) string {
 
 	return fmt.Sprintf(f, s...)
+}
+
+func sliceGoodFmt(arr []string) string {
+	var buf bytes.Buffer
+
+	for _, v := range arr {
+		buf.WriteString(fmt.Sprintf("%v\n", v))
+	}
+
+	return buf.String()
 }
