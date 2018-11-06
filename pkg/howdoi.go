@@ -222,16 +222,20 @@ func (clis Cli) getLinks() []string {
 
 	}
 
+	rest := 0
 	for i := 0; i < len(finalEngine); i++ {
+		rest = i
 		if res := <-linksChan; res != nil {
 			links = res // just the most fasest
 			break
 		}
 	}
 
-	go func() {
-		<-linksChan // free the last chan
-	}()
+	go func(rest int) {
+		for i := 0; i < rest; i++ {
+			<-linksChan // free the last chan
+		}
+	}(len(finalEngine) - rest)
 
 	return links
 }

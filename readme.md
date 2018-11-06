@@ -1,6 +1,6 @@
 ## howdoi
 
-Copy from [howdoi:py](https://github.com/gleitz/howdoi), But no done yet
+Copy from [howdoi:py](https://github.com/gleitz/howdoi), But Faster
 
 ### Install
 
@@ -30,7 +30,7 @@ go get -v -u github.com/chinanf-boy/howdoi
 same as py:howdoi , but lit diff
 
 ```bash
-$ howdoi -q "format date bash"
+$ howdoi -q "format date bash" -c -C 
 ```
 
 #### Tips
