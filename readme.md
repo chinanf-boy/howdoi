@@ -20,6 +20,7 @@ go get -v -u github.com/chinanf-boy/howdoi
 - [x] cache Result `-C` [useful refs](https://github.com/chinanf-boy/howdoi/issues/3)
 - [x] ReCache Result ?
 - [x] **go** func with ALL engines
+- [x] add **ChanHowdoi**: got one result, show it, rather than all results
 - [ ] test file
 - [ ] [Issue me anything](https://github.com/chinanf-boy/howdoi/issues/new)
 
