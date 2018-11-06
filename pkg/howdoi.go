@@ -226,7 +226,7 @@ func (clis Cli) getLinks() []string {
 	for i := 0; i < len(finalEngine); i++ {
 		rest = i
 		if res := <-linksChan; res != nil {
-			links = res // just the most fasest
+			links = res // just the most fasest and Right one
 			break
 		}
 	}
