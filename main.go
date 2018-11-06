@@ -24,8 +24,8 @@ func main() {
 
 	if res.Version {
 		fmt.Printf(aurora.Green(name + ", version:" + version).String())
-		fmt.Printf("date:%s", date)
-		fmt.Printf("commit:%s", commit)
+		fmt.Printf(" date:%s", date)
+		fmt.Printf(" commit:%s", commit)
 		return
 	}
 
