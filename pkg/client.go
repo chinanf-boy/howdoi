@@ -42,7 +42,7 @@ var config = Config{
 
 // Socks5Client > get httpClient with socks5
 func Socks5Client() *http.Client {
-	u, e := getURL()
+	u, e := getURL(config)
 	if e != nil {
 		log.Fatalln("Proxy Env Set Error", e)
 	}
@@ -69,26 +69,26 @@ func GetProxis() Config {
 	return config
 }
 
-func getURL() (*url.URL, error) {
+func getURL(c Config) (*url.URL, error) {
 	var u *url.URL
 	var e error
-	if len(config.ALLProxy) > 0 {
-		u, e = url.Parse(config.ALLProxy)
-	} else if len(config.HTTPSProxy) > 0 {
-		u, e = url.Parse(config.HTTPSProxy)
+	if len(c.ALLProxy) > 0 {
+		u, e = url.Parse(c.ALLProxy)
+	} else if len(c.HTTPSProxy) > 0 {
+		u, e = url.Parse(c.HTTPSProxy)
 
-	} else if len(config.HTTPProxy) > 0 {
-		u, e = url.Parse(config.HTTPProxy)
+	} else if len(c.HTTPProxy) > 0 {
+		u, e = url.Parse(c.HTTPProxy)
 	}
 
 	return u, e
 }
 
-func whichProxy() string {
+func (c Config) whichProxy() string {
 	var result string
-	if isSocks(config.ALLProxy) ||
-		isSocks(config.HTTPProxy) ||
-		isSocks(config.HTTPSProxy) {
+	if isSocks(c.ALLProxy) ||
+		isSocks(c.HTTPProxy) ||
+		isSocks(c.HTTPSProxy) {
 		result = SOCKS
 	} else {
 		result = HTTP
@@ -98,7 +98,6 @@ func whichProxy() string {
 
 func isSocks(s string) bool {
 	b := isRegexp(s, `^socks`)
-
 	return b
 }
 

@@ -172,7 +172,7 @@ func (clis Cli) getResult(u string) (doc *goquery.Document, reqErr error) {
 		}
 		req.Header.Set("User-Agent", getRandomUA())
 
-		proxyIs := whichProxy()
+		proxyIs := config.whichProxy()
 		if proxyIs == SOCKS {
 			httpClient := Socks5Client()
 			resp, err = httpClient.Do(req)
@@ -209,4 +209,43 @@ func (clis Cli) getResult(u string) (doc *goquery.Document, reqErr error) {
 	}
 
 	return
+}
+
+func extractLinks(doc *goquery.Document, engine string) []string {
+	gLog := debug.Debug("extractLinks")
+
+	var links []string
+	if engine == "bing" {
+		doc.Find("a").Each(func(i int, s *goquery.Selection) {
+			attr, exists := s.Attr("href")
+			if exists == true && isQuestion(attr) {
+				links = append(links, attr)
+			}
+		})
+	} else {
+		one := doc.Find("a")
+		if one.Size() > 0 {
+			one.Each(func(i int, s *goquery.Selection) {
+				attr, exists := s.Attr("href")
+
+				if exists == true && isQuestion(attr) {
+					links = append(links, attr)
+				}
+			})
+		}
+	}
+
+	gLog("%s, extract link %d", engine, len(links))
+
+	// Cache what you got
+	// if len(links) == 0 {
+	// 	s, _ := doc.Html()
+	// 	gLog("page Hava text number %d", len(s))
+	// 	f, _ := os.Create("./index.html")
+	// 	n, _ := f.WriteString(s)
+
+	// 	redLog(string(n))
+
+	// }
+	return links
 }

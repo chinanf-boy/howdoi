@@ -6,9 +6,7 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/PuerkitoBio/goquery"
 	"github.com/logrusorgru/aurora"
-	debug "github.com/visionmedia/go-debug"
 )
 
 func getEnv(key, fallback string) string {
@@ -53,44 +51,6 @@ func isQuestion(s string) bool {
 }
 func getSearchURL(s string) string {
 	return getMapDef(searchUrls, s, searchUrls["bing"])
-}
-func extractLinks(doc *goquery.Document, engine string) []string {
-	gLog := debug.Debug("extractLinks")
-
-	var links []string
-	if engine == "bing" {
-		doc.Find("a").Each(func(i int, s *goquery.Selection) {
-			attr, exists := s.Attr("href")
-			if exists == true && isQuestion(attr) {
-				links = append(links, attr)
-			}
-		})
-	} else {
-		one := doc.Find("a")
-		if one.Size() > 0 {
-			one.Each(func(i int, s *goquery.Selection) {
-				attr, exists := s.Attr("href")
-
-				if exists == true && isQuestion(attr) {
-					links = append(links, attr)
-				}
-			})
-		}
-	}
-
-	gLog("%s, extract link %d", engine, len(links))
-
-	// Cache what you got
-	// if len(links) == 0 {
-	// 	s, _ := doc.Html()
-	// 	gLog("page Hava text number %d", len(s))
-	// 	f, _ := os.Create("./index.html")
-	// 	n, _ := f.WriteString(s)
-
-	// 	redLog(string(n))
-
-	// }
-	return links
 }
 
 // UqineSlice remove same string with slice

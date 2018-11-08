@@ -21,7 +21,7 @@ go get -v -u github.com/chinanf-boy/howdoi
 - [x] ReCache Result ?
 - [x] **go** func with ALL engines
 - [x] add **ChanHowdoi**: got one result, show it, rather than all results
-- [ ] test file
+- [x] test file
 - [ ] [Issue me anything](https://github.com/chinanf-boy/howdoi/issues/new)
 
 > **Notes:** , cli-name Over the Python version cli
