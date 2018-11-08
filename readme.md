@@ -1,4 +1,4 @@
-## howdoi
+## howdoi  [![Build Status](https://travis-ci.org/chinanf-boy/howdoi.svg)](https://travis-ci.org/chinanf-boy/howdoi)
 
 Copy from [howdoi:py](https://github.com/gleitz/howdoi), But Faster
 
