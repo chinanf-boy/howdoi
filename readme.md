@@ -10,6 +10,14 @@ go get -v -u github.com/chinanf-boy/howdoi
 
 > of cos, [releases](https://github.com/chinanf-boy/howdoi/releases)
 
+### Uasge
+
+same as py:howdoi , but lit diff
+
+```bash
+$ howdoi -q "format date bash" -c -C 
+```
+
 ### TODO
 
 - [x] base Feature, Get the data
@@ -18,21 +26,13 @@ go get -v -u github.com/chinanf-boy/howdoi
 - [x] **go** func with questions
 - [x] colorful Code text with shell env `-c`/`-T`, [chroma](https://godoc.org/github.com/alecthomas/chroma)
 - [x] cache Result `-C` [useful refs](https://github.com/chinanf-boy/howdoi/issues/3)
-- [x] ReCache Result ?
+- [x] ReCache Result `-R`, just use GET, you still use `-C` if want to Cache Result
 - [x] **go** func with ALL engines
 - [x] add **ChanHowdoi**: got one result, show it, rather than all results
 - [x] test file
 - [ ] [Issue me anything](https://github.com/chinanf-boy/howdoi/issues/new)
 
 > **Notes:** , cli-name Over the Python version cli
-
-### Uasge
-
-same as py:howdoi , but lit diff
-
-```bash
-$ howdoi -q "format date bash" -c -C 
-```
 
 #### Tips
 
@@ -85,7 +85,7 @@ Arguments:
   -D  --debug    debug *
   -T  --theme    chrome styles. Default: pygments
   -C  --cache    cache response?. Default: false
-  -R  --recache  ReCache response?. Default: false
+  -R  --recache  reGET response, Cache thing have to with -C ?. Default: false
 ```
 
 ### Why rewrite

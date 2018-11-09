@@ -31,7 +31,7 @@ func ArgsPar(args []string) (Cli, error) {
 	debug := parser.Flag("D", "debug", &argparse.Options{Required: false, Help: "debug *"})
 	theme := parser.String("T", "theme", &argparse.Options{Required: false, Help: "chrome styles", Default: "pygments"})
 	cache := parser.Flag("C", "cache", &argparse.Options{Required: false, Help: "cache response?", Default: false})
-	reCache := parser.Flag("R", "recache", &argparse.Options{Required: false, Help: "ReCache response?", Default: false})
+	reCache := parser.Flag("R", "recache", &argparse.Options{Required: false, Help: "reGET response, Cache thing have to with -C ?", Default: false})
 
 	// Parse input
 	err := parser.Parse(args)

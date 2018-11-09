@@ -11,7 +11,6 @@ import (
 	"net/url"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/logrusorgru/aurora"
 	debug "github.com/visionmedia/go-debug"
 )
 
@@ -142,6 +141,8 @@ func (clis Cli) getResult(u string) (doc *goquery.Document, reqErr error) {
 			}
 			// invalidate rep
 			doc = nil
+			gLog("*^*. Error URL:%v", reqErr)
+
 		}
 	}()
 
@@ -150,10 +151,10 @@ func (clis Cli) getResult(u string) (doc *goquery.Document, reqErr error) {
 
 	cacheHandle := CacheHowdoi{cacheDir} // Get Cache
 	cacheBoby, ok := cacheHandle.cached(u)
-	// TODO ? clis.ReCache
+	// Check TODO clis.ReCache
 	if ok && !clis.ReCache {
 		// resp from Cache
-		gLog(gree("0. Resq from Cache"))
+		gLog(gree("0.1 Resq from Cache"))
 
 		r := bufio.NewReader(bytes.NewReader(cacheBoby))
 		resp, err = http.ReadResponse(r, nil)
@@ -162,13 +163,13 @@ func (clis Cli) getResult(u string) (doc *goquery.Document, reqErr error) {
 		}
 	} else { // GET URL
 		gLog(red("ReCache:%v"), clis.ReCache)
-		gLog(cyan("0. Resq from GET URL"))
+		gLog(cyan("0.2 Resq from GET URL"))
 		var req *http.Request
 
 		// User-Agent random
 		req, err = http.NewRequest("GET", u, nil)
 		if err != nil {
-			log.Panicln(err)
+			panic(err)
 		}
 		req.Header.Set("User-Agent", getRandomUA())
 
@@ -182,13 +183,13 @@ func (clis Cli) getResult(u string) (doc *goquery.Document, reqErr error) {
 		}
 
 		if err != nil {
-			log.Panicln(aurora.Red("请求失败:"), err)
+			panic(format(red("request Error: %s"), err))
 		} else {
 			defer resp.Body.Close()
 		}
 
 		if resp.StatusCode != 200 { // no 200, can no Cache
-			log.Panicln(aurora.Red("status code error:"), resp.Request.URL, resp.Status)
+			panic(format(red("status code error: %s \n%s"), resp.Request.URL, resp.Status))
 		}
 
 		// Keep Cache
@@ -196,7 +197,7 @@ func (clis Cli) getResult(u string) (doc *goquery.Document, reqErr error) {
 			body, err := httputil.DumpResponse(resp, clis.Cache)
 
 			if err != nil {
-				log.Panicln(err)
+				panic(err)
 			}
 
 			CacheResq(u, body, cacheDir)
@@ -205,7 +206,7 @@ func (clis Cli) getResult(u string) (doc *goquery.Document, reqErr error) {
 
 	doc, err = goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		log.Panicln(aurora.Red("goquery.NewDocumentFromReader error:"), err)
+		panic(format(red("goquery.NewDocumentFromReader error: %s"), err))
 	}
 
 	return
