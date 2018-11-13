@@ -18,6 +18,8 @@ same as py:howdoi , but lit diff
 $ howdoi -q "format date bash" -c -C 
 ```
 
+![demo](./demo.png)
+
 ### TODO
 
 - [x] base Feature, Get the data
