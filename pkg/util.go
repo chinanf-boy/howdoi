@@ -97,3 +97,22 @@ func sliceGoodFmt(arr []string) string {
 
 	return buf.String()
 }
+
+// func structGoodFmt(strt interface{}) string {
+// 	// gLog := debug.Debug("structGoodFmt")
+
+// 	v := reflect.ValueOf(strt).Elem()
+// 	ks := reflect.TypeOf(strt).Elem()
+
+// 	var buf bytes.Buffer
+// 	count := v.NumField()
+
+// 	for i := 0; i < count; i++ {
+// 		f := v.Field(i)
+// 		k := ks.Field(i)
+
+// 		buf.WriteString(fmt.Sprintf("%v : %v\n", k, f))
+// 	}
+
+// 	return buf.String()
+// }

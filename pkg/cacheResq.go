@@ -22,7 +22,7 @@ type CacheHowdoi struct {
 // CacheResq cache Resq
 func CacheResq(key string, value []byte, dir string) {
 	gLog := debug.Debug("CacheResq")
-	gLog("Cache URL:%v, %d", key, len(value))
+	gLog("Cache URL:%v %d", key, len(value))
 	
 	C := CacheHowdoi{dir}
 	

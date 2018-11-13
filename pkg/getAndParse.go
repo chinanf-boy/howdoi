@@ -127,7 +127,7 @@ func (clis Cli) getLinks() []string {
 
 func (clis Cli) getResult(u string) (doc *goquery.Document, reqErr error) {
 	gLog := debug.Debug("getResult")
-	gLog("0. get URL:%v", u)
+	gLog("0. get URL")
 
 	defer func() { // hold the error msg
 		if r := recover(); r != nil {
@@ -154,7 +154,7 @@ func (clis Cli) getResult(u string) (doc *goquery.Document, reqErr error) {
 	// Check TODO clis.ReCache
 	if ok && !clis.ReCache {
 		// resp from Cache
-		gLog(gree("0.1 Resq from Cache"))
+		gLog(gree("0.1 Resq from Cache %s"), u)
 
 		r := bufio.NewReader(bytes.NewReader(cacheBoby))
 		resp, err = http.ReadResponse(r, nil)
@@ -163,7 +163,7 @@ func (clis Cli) getResult(u string) (doc *goquery.Document, reqErr error) {
 		}
 	} else { // GET URL
 		gLog(red("ReCache:%v"), clis.ReCache)
-		gLog(cyan("0.2 Resq from GET URL"))
+		gLog(cyan("0.2 Resq from GET URL %s"), u)
 		var req *http.Request
 
 		// User-Agent random
@@ -171,7 +171,10 @@ func (clis Cli) getResult(u string) (doc *goquery.Document, reqErr error) {
 		if err != nil {
 			panic(err)
 		}
-		req.Header.Set("User-Agent", getRandomUA())
+		ua := getRandomUA()
+		gLog(cyan("0.3 Fake UA %s"), ua)
+
+		req.Header.Set("User-Agent", ua)
 
 		proxyIs := config.whichProxy()
 		if proxyIs == SOCKS {
@@ -199,6 +202,7 @@ func (clis Cli) getResult(u string) (doc *goquery.Document, reqErr error) {
 			if err != nil {
 				panic(err)
 			}
+			// gLog("resp %v", structGoodFmt(resp))
 
 			CacheResq(u, body, cacheDir)
 		}
