@@ -15,6 +15,7 @@ var (
 	answerHeader         string
 	noAnswerMsg          string
 	searchEngine         string
+	uRLRegexText         string
 )
 
 const allSearchEngine = "ALL"
@@ -29,6 +30,7 @@ func init() {
 	}
 	uRL = getEnv("HOWDOI_URL", "stackoverflow.com")
 	searchEngine = getEnv("HOWDOI_SEARCH_ENGINE", allSearchEngine)
+	uRLRegexText = getEnv("HOWDOI_URL_REGEX", `questions/\d+/`)
 
 	searchUrls = map[string]string{
 		"bing":   scheme + "www.bing.com/search?q=%s site:%s",

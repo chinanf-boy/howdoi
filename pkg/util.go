@@ -45,7 +45,7 @@ func cutURL(links []string) []string {
 	return links
 }
 func isQuestion(s string) bool {
-	m := isRegexp(s, `questions/\d+/`)
+	m := isRegexp(s, uRLRegexText)
 
 	return m
 }

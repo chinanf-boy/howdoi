@@ -1,4 +1,4 @@
-## howdoi  [![Build Status](https://travis-ci.org/chinanf-boy/howdoi.svg)](https://travis-ci.org/chinanf-boy/howdoi)
+## howdoi [![Build Status](https://travis-ci.org/chinanf-boy/howdoi.svg)](https://travis-ci.org/chinanf-boy/howdoi)
 
 Copy from [howdoi:py](https://github.com/gleitz/howdoi), But Faster
 
@@ -15,7 +15,7 @@ go get -v -u github.com/chinanf-boy/howdoi
 same as py:howdoi , but lit diff
 
 ```bash
-$ howdoi -q "format date bash" -c -C 
+$ howdoi -q "format date bash" -c -C
 ```
 
 ![demo](./demo.png)
@@ -44,6 +44,7 @@ About the `ENV`
 | ------------------------ | ---------------------------------- | --------------------- |
 | **HOWDOI_DISABLE_SSL**   | change `https://` => `http://`     | `nil`                 |
 | **HOWDOI_URL**           | search engine with the ask website | `stackoverflow.com`   |
+| **HOWDOI_URL_REGEX**     | match the regex with URL           | `questions/\d+/`      |
 | **HOWDOI_SEARCH_ENGINE** | search engine{`bing`\|`google`}    | `ALL`                 |
 | **HOWDOI_CACHE_DIR**     | http Response - Cached dir         | `$HOME/.howdoi-cache` |
 | **-T**                   | [chroma theme](#chroma-theme)      | `pygments`            |
@@ -58,7 +59,7 @@ About the `ENV`
 
 <details>
 
-<summary> info </summary>
+<summary> themes >> </summary>
 
 ```go
 [
